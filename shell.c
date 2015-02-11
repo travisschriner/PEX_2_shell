@@ -61,18 +61,26 @@ int main(void) {
 	}else{
 
 	  int temp = atoi(token[1]);
-	  //recall this command 
-	  char* call = list_get(history, temp);
+	  //recall this command and allocate proper size mem
+	  char* call = malloc(sizeof(char*));
+	  strcpy(call, list_get(history, temp));
+	  //adds things to the list
+	  history = list_remove(history, call);
+	  history = list_insert_head(history, call);	  
 	  free(token);
 	  token = malloc(sizeof(char*));
 	  token[0] = strtok(call,s);
+	  
+	  
 	  int i = 0;
 	  while(token[i] != NULL){
 	    i++;
 	    token=realloc(token,(i+1)*sizeof(char*));
 	    token[i]=strtok(NULL,s);
-	 }
+	  }
+	  //free(call); //this thing keeps killin my ability to recall!...
 	}
+	
       }
 
 
