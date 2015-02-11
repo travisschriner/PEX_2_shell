@@ -99,6 +99,7 @@ int main(void) {
 
 
       //start the execvp stuff...
+      //execvp(char*, char*[token])
     
   }//while(exit==0)
 
