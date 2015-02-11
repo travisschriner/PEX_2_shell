@@ -105,6 +105,7 @@ int main(void) {
 	    strcat(dir, path); //adds path from root to ~
 	    strcat(dir, printed_path); //adds path from ~ to dir
 	    chdir(dir); //chdir to new and proper path!
+	    free(dir);
 	  }else{
 	    chdir(token[1]); //should work, right?
 	  }	 
@@ -130,8 +131,6 @@ int main(void) {
 	execvp(token[0], token);
 	_exit(EXIT_FAILURE);
       }
-      //start the execvp stuff...
-      //execvp(char*, char*[token])
      }
     
   }//while(exit==0)
