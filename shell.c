@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 int main(void) {
 
@@ -20,11 +22,14 @@ int main(void) {
     fgets(command, 128, stdin);
     //kills '/n'
     command[strlen(command)-1]='\0';
-    char** token = malloc(sizeof(char*));
-    token[0] = strtok(command,s);
+
+    //TODO: figure out how to not store recall...
+    if(strncmp(command, "recall", 6)){
     history = list_remove(history, command);
     history = list_insert_head(history, command);
-
+    }
+    char** token = malloc(sizeof(char*));
+    token[0] = strtok(command,s);
 
     //creates an array of char* for my different tokens
     int i = 0;
@@ -34,21 +39,27 @@ int main(void) {
       token[i]=strtok(NULL,s);
     }
     
-    //checks exit condition
+    //------------------------
+    //exit 
+    //------------------------
     if(strcmp(token[0], "exit")==0){
       exit = 1;
+      list_destroy(history);
+      free(token);
+      return 0;
     }//terminate immediately
 
    
-      printf("%s\n", token[0]);//marker
-     
+    //------------------------
+    //recall
+    //------------------------
 
-
-      //checks recall
-      if(strcmp(token[0], "recall")==0){
+    if(strcmp(token[0], "recall")==0){
+  
 	if(token[1] == NULL){
 	  printf("Please specify a number to recall");
 	}else{
+
 	  int temp = atoi(token[1]);
 	  //recall this command 
 	  char* call = list_get(history, temp);
@@ -60,52 +71,69 @@ int main(void) {
 	    i++;
 	    token=realloc(token,(i+1)*sizeof(char*));
 	    token[i]=strtok(NULL,s);
-	 }//while
-	}//else
-      }//checks recall
+	 }
+	}
+      }
 
-      //checks history
+
+      //------------------------
+      //history
+      //*tested and works*
+      //------------------------
       if(strcmp(token[0], "history")==0){
-	if(token[1] != NULL){
-	  int temp = atoi(token[1]);
-	  //get how many items specified
+	if(token[1] != NULL){ //checks for history x
+	  int temp = atoi(token[1]); //turns ASCII to int
+	  list_printx(history, temp);
 	}else{
-	  //history to the 10th spot if possible.
+	  list_print10(history);	   
 	}
       }
+  
 
-        //checks CD
-      if(strcmp(token[0], "cd")==0){
+
+    //------------------------
+    //CD
+    //------------------------
+     else if(strcmp(token[0], "cd")==0){
 	if(token[1] != NULL){
-	  if(strncmp(token[1], "~", 1)){
-	      char* path = getenv("HOME");
-	      char* printed_path = token[1];
-	      printed_path++;
-	      
-	      char* dir = malloc((strlen(path)+strlen(printed_path)+1)*sizeof(char*));
-	      strcat(dir, path);
-	      strcat(dir, printed_path);
-	      chdir(dir);
-
+	  if(strncmp(token[1], "~", 1)){ //checks for home
+	    char* path = getenv("HOME"); //gets my path to ~
+	    char* printed_path = token[1]; //creates var for user's inputted path
+	    printed_path++;  //advances to the next char (removes ~)   
+	    char* dir = malloc((strlen(path)+strlen(printed_path)+1)*sizeof(char*)); //allocs proper size mem for full path
+	    strcat(dir, path); //adds path from root to ~
+	    strcat(dir, printed_path); //adds path from ~ to dir
+	    chdir(dir); //chdir to new and proper path!
 	  }else{
-	    chdir(token[1]);
-	  }
-	 
+	    chdir(token[1]); //should work, right?
+	  }	 
 	}else{
-	  printf("Please specify a path");
+	  printf("Please specify a path\n");
 	}
       }
 
 
 
+      //got this from:
+      //http://stackoverflow.com/questions/19099663/how-to-correctly-use-fork-exec-wait
+     else{
+       //pid_t parent = getpid();
+      pid_t pid = fork();
+
+      if(pid == -1){
+	printf("Your fork bent...");
+      }else if(pid>0){
+	int status;
+	waitpid(pid, &status,0);
+      }else{
+	execvp(token[0], token);
+	_exit(EXIT_FAILURE);
+      }
       //start the execvp stuff...
       //execvp(char*, char*[token])
+     }
     
   }//while(exit==0)
 
-
-  printf("this is where we exit\n");
-  list_print(history);
-  list_destroy(history);
   return 0;
 }//main

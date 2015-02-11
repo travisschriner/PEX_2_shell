@@ -54,6 +54,10 @@ node* list_removen(node*, int);
    Parameter: node*: a pointer to the head of a linked list */
 void list_print(node*);
 
+void list_print10(node*);
+
+void list_printx(node*, int);
+
 /* list_printn: print the data contained in the <n>th node of the list
    Parameters:
    - node*: a pointer to the head of a linked list

@@ -103,11 +103,32 @@ void list_print(node* list) {
   node* current = list;
   int i = 1;
   while(current != NULL) {
+    printf("%s\n", current->data);
+    current = current->next;
+    i++;
+  }
+}
+
+void list_print10(node* list){
+  node* current = list;
+  int i=1;
+  while(current != NULL && i<11){
     printf("%d: %s\n",i, current->data);
     current = current->next;
     i++;
   }
 }
+
+void list_printx(node* list, int j){
+  node* current = list;
+  int i=1;
+  while(current != NULL && i<(j+1)){
+    printf("%d: %s\n",i, current->data);
+    current = current->next;
+    i++;
+  }
+}
+
 
 void list_printn(node* list, int n) {
   node* current = list;
@@ -131,7 +152,7 @@ char* list_get(node* list, int n) {
     i++;
   }
   if(i < n) {
-    printf("Error trying to retrieve item %d\n", n);
+    //    printf("Error trying to retrieve item %d\n", n);
     return NULL;
   }
   return current->data;
