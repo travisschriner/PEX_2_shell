@@ -95,16 +95,25 @@ int main(void) {
     //CD
     //------------------------
      else if(strcmp(token[0], "cd")==0){
+       printf("entered CD\n");
 	if(token[1] != NULL){
-	  if(strncmp(token[1], "~", 1)){ //checks for home
+	  printf("entered loop!\n");
+	  if(strncmp(token[1], "~", 1)==0){ //checks for home
+	    printf("checks for ~\n");
 	    char* path = getenv("HOME"); //gets my path to ~
+	    printf("Home Path: %c\n", *path);
 	    char* printed_path = token[1]; //creates var for user's inputted path
-	    printed_path++;  //advances to the next char (removes ~)   
+	    printf("user path: %c\n", *printed_path);
+	    printed_path++;  //advances to the next char (removes ~)  
+	    printf("edited user path: %c\n",*printed_path);
 	    char* dir = malloc((strlen(path)+strlen(printed_path)+1)*sizeof(char*)); //allocs proper size mem for full path
 	    strcat(dir, path); //adds path from root to ~
+	    printf("dir: %c\n", *dir);
 	    strcat(dir, printed_path); //adds path from ~ to dir
+	    printf("dir: %c\n", *dir);
 	    chdir(dir); //chdir to new and proper path!
 	  }else{
+	    printf("~ failed\n");
 	    chdir(token[1]); //should work, right?
 	  }	 
 	}else{
