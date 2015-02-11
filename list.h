@@ -1,3 +1,6 @@
+#ifndef LIST_H
+#define LIST_H
+
  typedef struct s_node 
 {
   char* data;
@@ -70,3 +73,5 @@ char* list_get(node*, int);
     including char*'s and node*'s
    Parameter: node*: a pointer to the head of a linked list */
 void list_destroy(node*);
+
+#endif

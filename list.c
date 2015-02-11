@@ -101,9 +101,11 @@ node* list_removen(node* list, int n) {
 
 void list_print(node* list) {
   node* current = list;
+  int i = 1;
   while(current != NULL) {
-    printf("%s\n", current->data);
+    printf("%d: %s\n",i, current->data);
     current = current->next;
+    i++;
   }
 }
 
