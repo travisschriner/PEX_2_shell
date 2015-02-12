@@ -4,8 +4,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <sys/types.h> //for fork/execvp 
+#include <sys/types.h> //for fork/execvp/pipe 
 #include <sys/wait.h>  //for fork/execvp
+
+#define BUFFER_SIZE 25
+#define READ_END 0
+#define WRITE_END 1
 
 int main(void) {
 
@@ -13,6 +17,10 @@ int main(void) {
   char command[128];
   const char s[2] = " "; //white space deliminator
   char* call = malloc(sizeof(char)*(1+strlen(command)));//fix this with strlen and stuff..
+  // int fd[2];
+  //pid_t pipe;
+  
+
 
   
   int exit = 0;
@@ -23,8 +31,7 @@ int main(void) {
     fgets(command, 128, stdin);
     //kills '/n'
     command[strlen(command)-1]='\0';
-
-    //TODO: figure out how to not store recall...
+  
     if(strncmp(command, "recall", 6)){
     history = list_remove(history, command);
     history = list_insert_head(history, command);
@@ -54,19 +61,16 @@ int main(void) {
    
     //------------------------
     //recall
+    //*tested and works*
     //------------------------
-
     if(strcmp(token[0], "recall")==0){
   
 	if(token[1] == NULL){
-	  printf("Please specify a number to recall");
+	  printf("Please specify a number to recall\n");
 	}else{
 	  int temp = atoi(token[1]);
-	  //recall this command and allocate proper size mem
-	  
 	  strcpy(call, list_get(history, temp));
-	  //adds things to the list
-	  history = list_remove(history, call);
+	  history = list_remove(history, call); //adds things to the history list
 	  history = list_insert_head(history, call);	  
 	  free(token);
 	  token = malloc(sizeof(char*));
@@ -77,12 +81,11 @@ int main(void) {
 	    i++;
 	    token=realloc(token,(i+1)*sizeof(char*));
 	    token[i]=strtok(NULL,s);
-	  }
-	  
-	}
-	
+	  }	  
+	}	
       }
 
+  
 
       //------------------------
       //history
@@ -123,26 +126,42 @@ int main(void) {
       }
 
 
+      //------------------------------------------------------------
+      //piping...
+      //this is a dismal failure...
+      //------------------------------------------------------------
+      
+      //     else if(strcmp(token[1], "|")==0){
+      // if(pipe(fd) == -1){
+      //	 fprintf(stderr, "Pipe bent...");
+      //}
+      // pipe = fork();
+      //if(pipe>0){
+      //	 close(fd[READ_END]);
 
-      //got this from:
-      //http://stackoverflow.com/questions/19099663/how-to-correctly-use-fork-exec-wait
+      // }
+      //}
+      
+      //-------------------------------------------------------------
+      //fork
+      //*tested and works*
+      //stack overflow gave a similar example of using fork properly.
+      //it explained how fork worked, and combined with the man,
+      //I was able to understand how to get the thing to wait and
+      //to kill it in the event of something bad occuring. 
+      //-------------------------------------------------------------
      else{
-       //pid_t parent = getpid();
-      pid_t pid = fork();
-
-      if(pid == -1){
-	printf("Your fork bent...");
+      pid_t pid = fork(); //create a new process
+      if(pid == -1){ //fork failed to occure
+	printf("Your fork bent...\n");
       }else if(pid>0){
 	int status;
-	waitpid(pid, &status,0);
+	waitpid(pid, &status,0); //status shows how the child died
       }else{
 	execvp(token[0], token);
-	_exit(EXIT_FAILURE);
+	_exit(EXIT_FAILURE); //this kills the child...in the event the child doesnt kill itself
       }
      }
-    
-       
-  }//while(exit==0)
-
+ }//while(exit==0)
   return 0;
 }//main
