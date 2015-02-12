@@ -4,15 +4,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
+#include <sys/types.h> //for fork/execvp 
+#include <sys/wait.h>  //for fork/execvp
 
 int main(void) {
 
-  node* history = NULL;
+  node* history = NULL; //history linked list
   char command[128];
-  const char s[2] = " ";
-  char* call = malloc(sizeof(char*));//fix this with strlen and stuff..
+  const char s[2] = " "; //white space deliminator
+  char* call = malloc(sizeof(char)*(1+strlen(command)));//fix this with strlen and stuff..
 
   
   int exit = 0;
@@ -29,7 +29,7 @@ int main(void) {
     history = list_remove(history, command);
     history = list_insert_head(history, command);
     }
-    char** token = malloc(sizeof(char*));
+    char** token = malloc(sizeof(char)*(1+strlen(command)));
     token[0] = strtok(command,s);
 
     //creates an array of char* for my different tokens
